@@ -1,0 +1,11 @@
+code/base_code
+
+code/assets
+code/__pycache__
+code/.ipynb_checkpoints
+/data
+
+/output
+code/nohup.out
+code/saved_models
+code/elasticsearch-7.9.2
