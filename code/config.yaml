@@ -1,0 +1,30 @@
+retriever:
+  query_model_name_or_path: 'klue/bert-base' # 훈련된 폴더 경로 가능
+  passage_model_name_or_path: 'klue/bert-base' # 훈련된 폴더 경로 가능
+
+
+reader: 
+  model_name_or_path: '../output/2023-06-12-17:47/reader' # 훈련된 폴더 경로 가능
+  max_seq_len: 256
+  doc_stride: 128
+  batch_size: 16
+  n_epochs: 2
+  learning_rate: 2e-5
+  save_dir: 'reader'
+  train: False
+
+
+path:
+  ## 기본 dir_path
+  data_dir: '../data'
+  output_dir: '../output'
+
+  ## reader훈련을 위한 path
+  train_csv: 'train.csv' # 반드시 csv
+  valid_csv: 'valid.csv' # 반드시 csv
+  # convert_to_reader_train호출시 생성
+  train_for_reader: 'train_for_reader.json' # 반드시 json
+  valid_for_reader: 'valid_for_reader.json' # 반드시 json
+  
+  ## inference를 위한 path
+  test_for_inference: test.csv # 반드시 csv
