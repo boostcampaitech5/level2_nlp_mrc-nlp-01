@@ -6,14 +6,15 @@ retriever:
 # Kdogs/klue-finetuned-squad_kor_v1
 # monologg/koelectra-base-v3-finetuned-korquad
 reader: 
-  model_name_or_path: 'klue/bert-base' # 훈련된 폴더 경로 가능
+  # model_name_or_path: 'klue/bert-base' # 훈련된 폴더 경로 가능
+  model_name_or_path: '/opt/ml/input/code/models/train_dataset'
   max_seq_len: 384
   doc_stride: 128
   batch_size: 16
   n_epochs: 3
   learning_rate: 2e-5
   save_dir: 'reader'
-  train: True
+  train: False
   top_k: 1
 
 

@@ -27,12 +27,13 @@ def preprocess(text):
     return text
 
 preprocessor = PreProcessor(
-    split_by="word",
-    split_length=200,
+    split_by="word", #> sentence
+    split_length=300,
     split_overlap=0,
-    split_respect_sentence_boundary=False,
+    split_respect_sentence_boundary=True,
     clean_empty_lines=False,
     clean_whitespace=False,
+    max_chars_check= 12000,
 )
 
 filename = '../data/wikipedia_documents.json'
@@ -59,7 +60,7 @@ def read_tables(filename):
             processed_tables.append(doc)
     
     docs = preprocessor.process(processed_tables)
-    return docs 
+    return docs
 
 tables = read_tables(filename)
 print(f'document_store에 문서 저장중...약 5분 정도 소요됩니다.')
