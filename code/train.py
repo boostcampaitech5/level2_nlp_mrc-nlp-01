@@ -40,7 +40,7 @@ def train_reader(config, reader):
     ## reader 평가
     eval_file = reader.eval_on_file(
         data_dir=config.path.data_dir,
-        test_filename=config.path.dev_filename,
+        test_filename=valid_for_reader,
     )
     
     print(eval_file)

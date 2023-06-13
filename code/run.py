@@ -32,7 +32,7 @@ if __name__ == "__main__":
     )
 
     ## retriever
-    retriever = BM25Retriever(document_store=document_store, top_k=200)
+    retriever = BM25Retriever(document_store=document_store, top_k=100)
 
     ## reader
     reader = FARMReader(
@@ -56,15 +56,16 @@ if __name__ == "__main__":
         reader = train_reader(config, reader)
     
     ## pipeline
-    pipeline = ExtractiveQAPipeline(reader, retriever)
+    pipeline = ExtractiveQAPipeline(reader=reader, retriever=retriever) 
     
     inference(config.path, pipeline)
     
 
-    from haystack.schema import EvaluationResult, MultiLabel
-
+    ## 파이프라인 평가 결과 저장
     eval_labels = document_store.get_all_labels_aggregated(drop_negative_labels=True, drop_no_answers=True)
     eval_result = pipeline.eval(labels=eval_labels, params={"Retriever": {"top_k": 40}})
+
     retriever_result = eval_result["Retriever"]
     reader_result = eval_result["Reader"]
+
     eval_result.save("../result/eval_result")

@@ -9,3 +9,5 @@ code/.ipynb_checkpoints
 code/nohup.out
 code/saved_models
 code/elasticsearch-7.9.2
+
+/result

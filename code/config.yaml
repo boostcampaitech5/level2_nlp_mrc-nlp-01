@@ -8,16 +8,17 @@ reader:
   max_seq_len: 256
   doc_stride: 128
   batch_size: 16
-  n_epochs: 2
+  n_epochs: 1
   learning_rate: 2e-5
   save_dir: 'reader'
-  train: True
+  train: False
 
 
 path:
   ## 기본 dir_path
   data_dir: '../data'
   output_dir: '../output'
+  dev_filename: 
 
   ## reader훈련을 위한 path
   train_csv: 'train.csv' # 반드시 csv
