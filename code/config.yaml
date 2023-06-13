@@ -1,6 +1,7 @@
 retriever:
   query_model_name_or_path: 'klue/bert-base'
-  passage_model_name_or_path: 'klue/bert-base' 
+  passage_model_name_or_path: 'klue/bert-base'
+  top_k: 10
 
 
 reader:
@@ -12,7 +13,7 @@ reader:
     doc_stride: 128
     max_query_length: 64
     batch_size: 50
-    top_k: 10
+    top_k: 1
     top_k_per_candidate: 3
     top_k_per_sample: 1
     duplicate_filtering: 0
@@ -28,7 +29,7 @@ reader:
   is_train: True # True일 경우 훈련을 진행합니다. False일 경우 훈련을 진행하지 않습니다
 
 inference:
-  retriever_top_k: 3
+  retriever_top_k: 10
   reader_top_k: 1
 
 path:
