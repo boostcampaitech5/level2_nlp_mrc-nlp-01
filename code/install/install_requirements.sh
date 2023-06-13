@@ -9,6 +9,7 @@ pip install --upgrade evaluate
 pip install tqdm
 pip install pandas
 pip install scikit-learn
+pip install rapidfuzz
 
 # faiss install (if you want to)
 pip install faiss-gpu
@@ -16,4 +17,7 @@ pip install faiss-gpu
 # custom
 pip install omegaconf
 pip install farm-haystack
+<<<<<<< HEAD
 pip install rapidfuzz
+=======
+>>>>>>> bea22336b15cbbf51f3fbd1fa251cefe644424ba
