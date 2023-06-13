@@ -6,9 +6,11 @@ from train import train_reader
 from omegaconf import OmegaConf
 import shutil
 
+from sparse import TfidfRetriever
+
 from transformers import set_seed
 from haystack.document_stores import ElasticsearchDocumentStore
-from haystack.nodes import PreProcessor, BM25Retriever, FARMReader, TfidfRetriever, DensePassageRetriever, EmbeddingRetriever
+from haystack.nodes import PreProcessor, BM25Retriever, FARMReader, DensePassageRetriever, EmbeddingRetriever
 from haystack.pipelines import ExtractiveQAPipeline
 from haystack.nodes import SentenceTransformersRanker, TransformersSummarizer
 import logging
