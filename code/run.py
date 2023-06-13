@@ -38,8 +38,8 @@ if __name__ == "__main__":
     )
 
     ## retriever
-    # retriever = BM25Retriever(document_store=document_store)
-    retriever = TfidfRetriever(document_store=document_store)
+    retriever = BM25Retriever(document_store=document_store)
+    # retriever = TfidfRetriever(document_store=document_store)
 
     ## reader
     reader = FARMReader(

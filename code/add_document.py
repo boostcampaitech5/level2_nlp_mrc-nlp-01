@@ -106,7 +106,7 @@ for i, row in dfs["validation"].iterrows():
     meta = {"title": row["title"], "document_id": row["document_id"], "id": row["id"], "__index_level_0__": row["__index_level_0__"]} #> 필터링용
 
     # 답이 있는 질문을 레이블에 추가
-    if len(row['answers']['text']):
+    if row['answers']['text']:
         for answer in row['answers']['text']:
             label = Label(
                 query=row["question"], answer=Answer(answer=answer), origin="gold-label", document=Document(content=row["context"], id=row["id"]),
