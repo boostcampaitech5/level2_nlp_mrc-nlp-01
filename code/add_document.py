@@ -3,6 +3,8 @@ from tqdm import tqdm
 import pyarrow as pa
 from haystack import Label, Answer, Document
 from haystack.document_stores import ElasticsearchDocumentStore
+import re
+from haystack.nodes import PreProcessor
 
 
 def read_documents(path):

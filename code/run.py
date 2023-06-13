@@ -8,9 +8,11 @@ import shutil
 
 from transformers import set_seed
 from haystack.document_stores import ElasticsearchDocumentStore
-from haystack.nodes import PreProcessor, BM25Retriever, FARMReader, DensePassageRetriever, DenseRetriever, TfidfRetriever, DensePassageRetriever
+from haystack.nodes import PreProcessor, BM25Retriever, FARMReader, DensePassageRetriever, DenseRetriever, TfidfRetriever
 from haystack.pipelines import ExtractiveQAPipeline
+from haystack.nodes import SentenceTransformersRanker, TransformersSummarizer
 import logging
+
 
 logging.basicConfig(format="%(levelname)s - %(name)s - %(message)s", level=logging.WARNING)
 logging.getLogger("haystack").setLevel(logging.INFO)
@@ -69,15 +71,22 @@ if __name__ == "__main__":
     if config.reader.is_train:
         reader = train_reader(config, reader)
     
+    # ## ranker, summarizer
+    # ranker = SentenceTransformersRanker(model_name_or_path="cross-encoder/ms-marco-MiniLM-L-12-v2", top_k=10)
+    # summarizer = TransformersSummarizer(model_name_or_path='t5-large', min_length=10, max_length=100)
+
+    
     ## pipeline
     pipeline = ExtractiveQAPipeline(reader=reader, retriever=retriever) 
+    # pipeline.add_node(component=ranker, name='Ranker', inputs=['Retriever'])
+    # pipeline.add_node(component=summarizer, name='Summarizer', inputs=['Ranker'])
     
     ## inference
     inference(config, pipeline)
     
     ## 파이프라인 평가 결과 저장
     eval_labels = document_store.get_all_labels_aggregated(drop_negative_labels=True, drop_no_answers=True)
-    eval_result = pipeline.eval(labels=eval_labels, params={"Retriever": {"top_k": 40}})
+    eval_result = pipeline.eval(labels=eval_labels, params={"Retriever": {"top_k": config.retriever.top_k}, "Reader": {"top_k": config.reader.top_k}})
 
     retriever_result = eval_result["Retriever"]
     reader_result = eval_result["Reader"]
