@@ -53,11 +53,10 @@ def clean_document_store(document_store):
         document_store.delete_documents("label")
 
 
-def read_labels(train_path, valid_path):
+def read_labels(valid_path):
     """path에 있는 정보들을 읽어서 label을 생성한 뒤, label의 list를 반환합니다.
 
     Args:
-        train_path: train 데이터를 담고있는 파일의 path
         valid_path: valid 데이터를 담고있는 파일의 path
 
     Returns:
@@ -65,26 +64,21 @@ def read_labels(train_path, valid_path):
     """
     
     ## Arrow 파일에서 데이터 스트림 생성
-    with open(train_path, 'rb') as f:
-        reader = pa.ipc.open_stream(f)
-        train_batches = [b for b in reader]
-
     with open(valid_path, 'rb') as f:
         reader = pa.ipc.open_stream(f)
         valid_batches = [b for b in reader]
 
     ## Arrow RecordBatches를 Table로 병합 -> pandas DataFrame으로 변환
-    df_train = pa.Table.from_batches(train_batches).to_pandas()
     df_valid = pa.Table.from_batches(valid_batches).to_pandas()
-    dfs = {'train': df_train, 'validation': df_valid}
     
     labels = []
-    for _, row in tqdm(dfs["validation"].iterrows()):
+    for row in tqdm(df_valid.iterrows()):
 
-        meta = {"title": row["title"], "document_id": row["document_id"], "id": row["id"], "__index_level_0__": row["__index_level_0__"]} # 필터링용
+        ## 필터링용 meta정보 사전
+        meta = {"title": row["title"], "document_id": row["document_id"], "id": row["id"], "__index_level_0__": row["__index_level_0__"]} 
 
         ## 답이 있는 질문을 레이블에 추가
-        if len(row['answers']['text']):
+        if row['answers']['text']:
             for answer in tqdm(row['answers']['text']):
                 label = Label(
                     query=row["question"], answer=Answer(answer=answer), origin="gold-label", document=Document(content=row["context"], id=row["id"]),
@@ -108,7 +102,6 @@ if __name__ == "__main__":
     document_path = '../data/wikipedia_documents.json' # document를 저장하고 있는 파일
     
     ## Arrow 파일 경로
-    train_path = '../data/train_dataset/train/dataset.arrow'
     valid_path = '../data/train_dataset/validation/dataset.arrow'
 
     ## document_store에 document 추가
@@ -118,7 +111,7 @@ if __name__ == "__main__":
     print(f"{document_store.get_document_count()}개 문서가 저장되었습니다")
     
     ## document_store에 label 추가
-    document_labels = read_labels(train_path, valid_path)
+    document_labels = read_labels(valid_path)
     document_store.write_labels(document_labels)
     print(f"{document_store.get_label_count()}개의 질문 답변 쌍을 로드했습니다.")
     
