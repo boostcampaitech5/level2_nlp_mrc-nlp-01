@@ -1,10 +1,9 @@
 import json
 from tqdm import tqdm
-import pyarrow as pa
 from haystack import Label, Answer, Document
 from haystack.document_stores import ElasticsearchDocumentStore
-import re
 from haystack.nodes import PreProcessor
+import pandas as pd
 
 
 def read_documents(path):
@@ -63,13 +62,8 @@ def read_labels(valid_path):
         labels: label들을 저장하고 있는 list
     """
     
-    ## Arrow 파일에서 데이터 스트림 생성
-    with open(valid_path, 'rb') as f:
-        reader = pa.ipc.open_stream(f)
-        valid_batches = [b for b in reader]
-
-    ## Arrow RecordBatches를 Table로 병합 -> pandas DataFrame으로 변환
-    df_valid = pa.Table.from_batches(valid_batches).to_pandas()
+    ## csv -> df
+    df_valid = pd.read_csv(valid_path)
     
     labels = []
     for row in tqdm(df_valid.iterrows()):
@@ -101,8 +95,8 @@ if __name__ == "__main__":
     document_store = ElasticsearchDocumentStore(return_embedding=True, analyzer="standard")
     document_path = '../data/wikipedia_documents.json' # document를 저장하고 있는 파일
     
-    ## Arrow 파일 경로
-    valid_path = '../data/train_dataset/validation/dataset.arrow'
+    ## validation csv파일 경로
+    valid_path = '../data/valid.csv'
 
     ## document_store에 document 추가
     clean_document_store(document_store)
