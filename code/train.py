@@ -33,7 +33,8 @@ def train_reader(config, reader):
         train_filename=train_for_reader,
         dev_filename=valid_for_reader,
         warmup_proportion=0.1,
-        save_dir=save_dir
+        save_dir=save_dir,
+        # early_stopping=early_stopping,
     )
 
     ## reader 평가
