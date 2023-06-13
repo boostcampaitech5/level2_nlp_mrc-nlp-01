@@ -37,13 +37,13 @@ def train_reader(config, reader):
     reader.train(
         data_dir=config.path.data_dir,
         use_gpu=True,
+        save_dir=save_dir,
         batch_size=config.reader.train.batch_size,
         n_epochs=config.reader.train.n_epochs,
         learning_rate=config.reader.train.learning_rate,
         train_filename=train_for_reader,
         dev_filename=valid_for_reader,
         warmup_proportion=config.reader.train.warmup_proportion,
-        save_dir=save_dir,
         # early_stopping=early_stopping,
     )
 
