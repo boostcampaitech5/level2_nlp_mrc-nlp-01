@@ -11,7 +11,7 @@ reader:
   n_epochs: 1
   learning_rate: 2e-5
   save_dir: 'reader'
-  train: False
+  train: True
 
 
 path:

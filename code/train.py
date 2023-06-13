@@ -44,3 +44,5 @@ def train_reader(config, reader):
     )
     
     print(eval_file)
+    
+    return reader

@@ -68,4 +68,4 @@ if __name__ == "__main__":
     retriever_result = eval_result["Retriever"]
     reader_result = eval_result["Reader"]
 
-    eval_result.save("../result/eval_result")
+    eval_result.save("../output/eval_result")
