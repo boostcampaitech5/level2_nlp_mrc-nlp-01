@@ -77,7 +77,7 @@ def read_labels(valid_path):
     df_valid = pd.read_csv(valid_path)
     
     labels = []
-    for _, row in tqdm(df_valid.iterrows()):
+    for _, row in df_valid.iterrows():
 
         ## 필터링용 meta정보 사전
         meta = {"title": row["title"], "document_id": row["document_id"], "id": row["id"]} 
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     ## document_store에 document 추가
     clean_document_store(document_store)
     document_list = read_documents(document_path)
-    print("Elasticsearch document_store에 wiki문서를 저장중... 3~5분 가량 소요됩니다. 기다려주세요")
+    print("Elasticsearch document_store에 wiki문서를 저장중... 3~5분 가량 소요됩니다. 잠깐 휴식 하면서 기다려주세요")
     document_store.write_documents(document_list)
     print(f"{document_store.get_document_count()}개 문서가 저장되었습니다")
     
