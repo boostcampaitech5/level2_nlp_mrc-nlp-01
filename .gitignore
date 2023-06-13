@@ -1,13 +1,14 @@
-code/base_code
+# base
+/data
+/output
+*.ipynb
+code/elasticsearch-7.9.2
+code/saved_models
 
+# custom
+code/base_code
+code/nohup.out
 code/assets
 code/__pycache__
 code/.ipynb_checkpoints
-/data
-
-/output
-code/nohup.out
-code/saved_models
-code/elasticsearch-7.9.2
-
 /result

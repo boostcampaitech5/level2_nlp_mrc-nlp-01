@@ -13,6 +13,6 @@ pip install scikit-learn
 # faiss install (if you want to)
 pip install faiss-gpu
 
-##
+# custom
 pip install omegaconf
 pip install farm-haystack

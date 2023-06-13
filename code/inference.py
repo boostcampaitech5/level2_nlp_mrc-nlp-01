@@ -13,22 +13,32 @@ from haystack.nodes import PreProcessor, BM25Retriever, FARMReader, DensePassage
 from haystack.pipelines import ExtractiveQAPipeline
 
 
-def inference(config, pipe):
+def inference(config, pipeline):
+    """test데이터셋을 가지고 예측을 실행합니다. 예측의 결과는 output폴더에 저장됩니다.
+
+    Args:
+        config: config.path, config.inference 사용
+        pipeline: 예측에 사용할 pipeline
+    """
 
     ## 예측 실행
-    test_path = os.path.join(config.data_dir, config.test_for_inference)
+    test_path = os.path.join(config.path.data_dir, config.path.test_for_inference)
     test_data = pd.read_csv(test_path)
 
-    preds= pipe.run_batch(
+    prediction = pipeline.run_batch(
         queries=list(test_data['question'].values),
-        params={"Retriever": {"top_k": 3}, "Reader": {"top_k": 1}},
+        params={
+            "Retriever": {"top_k": config.inference.retriever_top_k},
+            "Reader": {"top_k": config.inference.reader_top_k}
+        },
     )
 
     ## preds to output
     outputs = {}
-    output_path = os.path.join(config.output_dir, 'outputs.json')
+    output_path = os.path.join(config.path.output_dir, 'outputs.json')
     for i in range(len(test_data)):
-        outputs[test_data['id'][i]] = preds['answers'][i][0].answer
+        outputs[test_data['id'][i]] = prediction['answers'][i][0].answer
+    ## 결과 저장
     with open(output_path, 'w', encoding='UTF-8') as f:
         json.dump(outputs, f, ensure_ascii=False)
         

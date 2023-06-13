@@ -2,6 +2,14 @@ import pandas as pd
 import json
 
 def convert_to_reader_train(csv_path, output_path):
+    """CSV 파일을 squard dataset형식으로 변경하고 json파일로 저장합니다
+
+    Args:
+        csv_path: squard dataset 형식으로 변환할 csv파일 path
+        output_path: 변환된 데이터를 저장할 path (반드시 json확장자)
+
+    """
+    
     df = pd.read_csv(csv_path)
     
     data = []
@@ -13,5 +21,3 @@ def convert_to_reader_train(csv_path, output_path):
     
     with open(output_path, 'w') as f:
         json.dump(data, f)
-    
-    return output_path

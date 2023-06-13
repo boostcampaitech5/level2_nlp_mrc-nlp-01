@@ -1,31 +1,48 @@
 retriever:
-  query_model_name_or_path: 'klue/bert-base' # 훈련된 폴더 경로 가능
-  passage_model_name_or_path: 'klue/bert-base' # 훈련된 폴더 경로 가능
+  query_model_name_or_path: 'klue/bert-base'
+  passage_model_name_or_path: 'klue/bert-base' 
+  top_k: 10
 
 
-reader: 
-  model_name_or_path: 'klue/bert-base' # 훈련된 폴더 경로 가능
-  max_seq_len: 256
-  doc_stride: 128
-  batch_size: 16
-  n_epochs: 1
-  learning_rate: 2e-5
-  save_dir: 'reader'
-  train: True
+reader:
+  ## https://docs.haystack.deepset.ai/reference/reader-api#farmreader__init__
+  init: 
+    model_name_or_path: 'klue/bert-base' # ex) '../output/2023-06-13-14:53/reader'
+    context_window_size: 150
+    max_seq_len: 256
+    doc_stride: 128
+    max_query_length: 64
+    batch_size: 50
+    top_k: 10
+    top_k_per_candidate: 3
+    top_k_per_sample: 1
+    duplicate_filtering: 0
+    use_confidence_scores: True
+    no_ans_boost: 0.0
+  ## https://docs.haystack.deepset.ai/reference/reader-api#farmreadertrain
+  train:
+    n_epochs: 1
+    learning_rate: 2e-5
+    batch_size: 16
+    warmup_proportion: 0.1
+    save_dir: 'reader'
+  is_train: True # True일 경우 훈련을 진행합니다. False일 경우 훈련을 진행하지 않습니다
 
+inference:
+  retriever_top_k: 3
+  reader_top_k: 1
 
 path:
   ## 기본 dir_path
   data_dir: '../data'
   output_dir: '../output'
-  dev_filename: 
 
-  ## reader훈련을 위한 path
-  train_csv: 'train.csv' # 반드시 csv
-  valid_csv: 'valid.csv' # 반드시 csv
-  # convert_to_reader_train호출시 생성
-  train_for_reader: 'train_for_reader.json' # 반드시 json
-  valid_for_reader: 'valid_for_reader.json' # 반드시 json
+  ## reader훈련을 위한 csv파일 path
+  train_csv: 'train.csv'
+  valid_csv: 'valid.csv'
+  ## convert_to_reader_train호출시 생성, 반드시 json확장자
+  train_for_reader: 'train_for_reader.json'
+  valid_for_reader: 'valid_for_reader.json'
   
   ## inference를 위한 path
   test_for_inference: test.csv # 반드시 csv
