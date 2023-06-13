@@ -21,7 +21,7 @@ def inference(config, pipe):
 
     preds= pipe.run_batch(
         queries=list(test_data['question'].values),
-        params={"Retriever": {"top_k": 3}, "Reader": {"top_k": 1}},
+        params={"Retriever": {"top_k": 10}, "Reader": {"top_k": 1}},
     )
 
     ## preds to output

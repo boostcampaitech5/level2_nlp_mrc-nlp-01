@@ -8,6 +8,12 @@ from omegaconf import OmegaConf
 from haystack.document_stores import ElasticsearchDocumentStore
 from haystack.nodes import PreProcessor, BM25Retriever, FARMReader, DensePassageRetriever, DenseRetriever, TfidfRetriever, DensePassageRetriever
 from haystack.pipelines import ExtractiveQAPipeline
+from haystack.nodes import SentenceTransformersRanker, TransformersSummarizer
+import logging
+
+
+logging.basicConfig(format="%(levelname)s - %(name)s - %(message)s", level=logging.WARNING)
+logging.getLogger("haystack").setLevel(logging.INFO)
 
 
 if __name__ == "__main__":
@@ -32,7 +38,7 @@ if __name__ == "__main__":
     )
 
     ## retriever
-    retriever = BM25Retriever(document_store=document_store, top_k=100)
+    retriever = BM25Retriever(document_store=document_store, top_k=10)
 
     ## reader
     reader = FARMReader(
@@ -43,7 +49,7 @@ if __name__ == "__main__":
         use_gpu=True,
         no_ans_boost=0.0,                         #> no_answer 로짓이 얼마나 부스트/증가되었는지. 음수인 경우 "no_answer"가 예측될 가능성이 낮습니다. 양수이면 "no_answer"일 확률이 높아집니다.
         return_no_answer=False,                   #> 결과에 no_answer 예측을 포함할지 여부입니다.
-        top_k=10,                                 #> 반환할 최대 답변 수
+        top_k=4,                                 #> 반환할 최대 답변 수
         max_seq_len=config.reader.max_seq_len,    #> 모델에 대한 하나의 입력 텍스트의 최대 시퀀스 길이. 초과 시 모든 것이 잘립니다.
         doc_stride=config.reader.doc_stride,      #> 긴 텍스트를 분할하기 위한 스트라이딩 윈도우의 길이
         duplicate_filtering=0,                    #> 0은 정확한 중복에 해당합니다. -1은 중복 제거를 끕니다. 답변의 시작 위치와 끝 위치가 모두 고려되며 위치에 따라 필터링됩니다.
@@ -55,15 +61,20 @@ if __name__ == "__main__":
     if config.reader.train:
         reader = train_reader(config, reader)
     
+    # ## ranker, summarizer
+    # ranker = SentenceTransformersRanker(model_name_or_path="cross-encoder/ms-marco-MiniLM-L-12-v2", top_k=10)
+    # summarizer = TransformersSummarizer(model_name_or_path='t5-large', min_length=10, max_length=100)
     ## pipeline
     pipeline = ExtractiveQAPipeline(reader=reader, retriever=retriever) 
+    # pipeline.add_node(component=ranker, name='Ranker', inputs=['Retriever'])
+    # pipeline.add_node(component=summarizer, name='Summarizer', inputs=['Ranker'])
     
     inference(config.path, pipeline)
     
 
     ## 파이프라인 평가 결과 저장
     eval_labels = document_store.get_all_labels_aggregated(drop_negative_labels=True, drop_no_answers=True)
-    eval_result = pipeline.eval(labels=eval_labels, params={"Retriever": {"top_k": 40}})
+    eval_result = pipeline.eval(labels=eval_labels, params={"Retriever": {"top_k": config.retriever.top_k}, "Reader": {"top_k": config.reader.top_k}})
 
     retriever_result = eval_result["Retriever"]
     reader_result = eval_result["Reader"]

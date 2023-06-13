@@ -3,6 +3,8 @@ from tqdm import tqdm
 import pyarrow as pa
 from haystack import Label, Answer, Document
 from haystack.document_stores import ElasticsearchDocumentStore
+import re
+from haystack.nodes import PreProcessor
 
 ## elasticsearch를 local로 실행하고 코드를 진행해 주세요
 
@@ -12,8 +14,26 @@ document_store = ElasticsearchDocumentStore(return_embedding=True, analyzer="sta
 
 # 저장소 비우기
 if len(document_store.get_all_documents()) or len(document_store.get_all_labels()) > 0:
-    document_store.delete_documents()
-    document_store.delete_documents()
+    document_store.delete_documents("document")
+    document_store.delete_documents("label")
+
+def preprocess(text):
+    text = re.sub(r"\n", " ", text)
+    text = re.sub(r"\\n", " ", text)
+    text = re.sub(r"\u000A", " ", text)
+    text = re.sub(r"#", " ", text)
+    text = re.sub(r"[^A-Za-z0-9가-힣.?!,()~‘’“”:%&\《\》〈〉''㈜·\-\'+\s一-龥サマーン]", "", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+preprocessor = PreProcessor(
+    split_by="word",
+    split_length=200,
+    split_overlap=0,
+    split_respect_sentence_boundary=False,
+    clean_empty_lines=False,
+    clean_whitespace=False,
+)
 
 filename = '../data/wikipedia_documents.json'
 
@@ -24,6 +44,7 @@ def read_tables(filename):
         for key, table in tables.items():
             document = {
                 "content": table.get('text', ''),
+                # "content": preprocess(table.get('text', '')),
                 "meta": {
                     'corpus_source': table.get('corpus_source', ''),
                     'url': table.get('url', ''),
@@ -36,10 +57,12 @@ def read_tables(filename):
             }
             doc = Document(content=document['content'], id=str(document['meta']['document_id']), meta=document['meta'])
             processed_tables.append(doc)
-
-    return processed_tables 
+    
+    docs = preprocessor.process(processed_tables)
+    return docs 
 
 tables = read_tables(filename)
+print(f'document_store에 문서 저장중...약 5분 정도 소요됩니다.')
 document_store.write_documents(tables)
 print(f"{document_store.get_document_count()}개 문서가 저장되었습니다")
 

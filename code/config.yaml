@@ -1,17 +1,20 @@
 retriever:
   query_model_name_or_path: 'klue/bert-base' # 훈련된 폴더 경로 가능
   passage_model_name_or_path: 'klue/bert-base' # 훈련된 폴더 경로 가능
+  top_k: 10
 
-
+# Kdogs/klue-finetuned-squad_kor_v1
+# monologg/koelectra-base-v3-finetuned-korquad
 reader: 
   model_name_or_path: 'klue/bert-base' # 훈련된 폴더 경로 가능
-  max_seq_len: 256
+  max_seq_len: 384
   doc_stride: 128
   batch_size: 16
-  n_epochs: 1
+  n_epochs: 3
   learning_rate: 2e-5
   save_dir: 'reader'
   train: True
+  top_k: 1
 
 
 path:
