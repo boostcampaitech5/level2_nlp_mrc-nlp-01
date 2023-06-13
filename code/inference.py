@@ -1,16 +1,8 @@
 import os
-import time
-from datetime import datetime
-from pytz import timezone
 import pandas as pd
 import json
-from tqdm import tqdm
-from omegaconf import OmegaConf
 from preprocessing import convert_to_reader_train
-from haystack import Document
 from haystack.document_stores import ElasticsearchDocumentStore
-from haystack.nodes import PreProcessor, BM25Retriever, FARMReader, DensePassageRetriever, DenseRetriever, TfidfRetriever, DensePassageRetriever
-from haystack.pipelines import ExtractiveQAPipeline
 
 
 def inference(config, pipeline):
