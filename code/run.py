@@ -10,7 +10,10 @@ from transformers import set_seed
 from haystack.document_stores import ElasticsearchDocumentStore
 from haystack.nodes import PreProcessor, BM25Retriever, FARMReader, DensePassageRetriever, DenseRetriever, TfidfRetriever, DensePassageRetriever
 from haystack.pipelines import ExtractiveQAPipeline
+import logging
 
+logging.basicConfig(format="%(levelname)s - %(name)s - %(message)s", level=logging.WARNING)
+logging.getLogger("haystack").setLevel(logging.INFO)
 
 if __name__ == "__main__":
     
