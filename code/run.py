@@ -68,4 +68,4 @@ if __name__ == "__main__":
     retriever_result = eval_result["Retriever"]
     reader_result = eval_result["Reader"]
 
-    eval_result.save("../output/eval_result")
+    eval_result.save(f"../output/{config.path.output_dir}/pipeline_result") #> TO DO
