@@ -46,6 +46,7 @@ def read_documents(path):
         document = Document(content=document['content'], id=str(document['meta']['document_id']), meta=document['meta'])
         document_list.append(document)
 
+    print("전처리 시 'We found one or more sentences whose word count is higher than the split length.' 와 'where the maximum length should be 10000' 경고 메세지는 무시하셔도 됩니다.")
     preprocessed_document_list = preprocessor.process(document_list)
     return preprocessed_document_list 
 
@@ -76,14 +77,14 @@ def read_labels(valid_path):
     df_valid = pd.read_csv(valid_path)
     
     labels = []
-    for row in tqdm(df_valid.iterrows()):
+    for _, row in tqdm(df_valid.iterrows()):
 
         ## 필터링용 meta정보 사전
-        meta = {"title": row["title"], "document_id": row["document_id"], "id": row["id"], "__index_level_0__": row["__index_level_0__"]} 
+        meta = {"title": row["title"], "document_id": row["document_id"], "id": row["id"]} 
 
         ## 답이 있는 질문을 레이블에 추가
-        if row['answers']['text']:
-            for answer in tqdm(row['answers']['text']):
+        if eval(row['answers'])['text']:
+            for answer in eval(row['answers'])['text']:
                 label = Label(
                     query=row["question"], answer=Answer(answer=answer), origin="gold-label", document=Document(content=row["context"], id=row["id"]),
                     meta=meta, is_correct_answer=True, is_correct_document=True, no_answer=False)
@@ -111,6 +112,7 @@ if __name__ == "__main__":
     ## document_store에 document 추가
     clean_document_store(document_store)
     document_list = read_documents(document_path)
+    print("Elasticsearch document_store에 wiki문서를 저장중... 3~5분 가량 소요됩니다. 기다려주세요")
     document_store.write_documents(document_list)
     print(f"{document_store.get_document_count()}개 문서가 저장되었습니다")
     
