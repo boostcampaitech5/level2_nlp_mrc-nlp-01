@@ -1,6 +1,5 @@
 import pandas as pd
 from datasets import load_from_disk
-import json
 
 if __name__ == 'main':
     """train.csv, valid.csv, test.csv 생성"""

@@ -8,7 +8,7 @@ import shutil
 
 from transformers import set_seed
 from haystack.document_stores import ElasticsearchDocumentStore
-from haystack.nodes import PreProcessor, BM25Retriever, FARMReader, DensePassageRetriever, DenseRetriever, TfidfRetriever
+from haystack.nodes import PreProcessor, BM25Retriever, FARMReader, TfidfRetriever, DensePassageRetriever, EmbeddingRetriever
 from haystack.pipelines import ExtractiveQAPipeline
 from haystack.nodes import SentenceTransformersRanker, TransformersSummarizer
 import logging
@@ -61,10 +61,10 @@ if __name__ == "__main__":
         top_k=config.reader.init.top_k,
         top_k_per_candidate=config.reader.init.top_k_per_candidate,
         top_k_per_sample=config.reader.init.top_k_per_sample,
-        max_seq_len=config.reader.init.max_seq_len,    
-        doc_stride=config.reader.init.doc_stride,      
-        duplicate_filtering=config.reader.init.duplicate_filtering,               
-        use_confidence_scores=config.reader.init.use_confidence_scores,           
+        max_seq_len=config.reader.init.max_seq_len,
+        doc_stride=config.reader.init.doc_stride,
+        duplicate_filtering=config.reader.init.duplicate_filtering,
+        use_confidence_scores=config.reader.init.use_confidence_scores,
         max_query_length=config.reader.init.max_query_length
     )
 
