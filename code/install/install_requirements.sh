@@ -16,3 +16,4 @@ pip install faiss-gpu
 # custom
 pip install omegaconf
 pip install farm-haystack
+pip install rapidfuzz
