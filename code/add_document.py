@@ -9,7 +9,13 @@ from haystack.document_stores import ElasticsearchDocumentStore
 ## document_store 설정 -> 기본으로 localhost, 9200 port가 부여됩니다
 document_store = ElasticsearchDocumentStore(return_embedding=True, analyzer="standard",)
 
-filename = '/opt/ml/input/data/wikipedia_documents.json'
+
+# 저장소 비우기
+if len(document_store.get_all_documents()) or len(document_store.get_all_labels()) > 0:
+    document_store.delete_documents()
+    document_store.delete_documents()
+
+filename = '../data/wikipedia_documents.json'
 
 def read_tables(filename):
     processed_tables = []
@@ -40,9 +46,9 @@ print(f"{document_store.get_document_count()}개 문서가 저장되었습니다
 
 
 # Arrow 파일 경로
-train_file_path = '/opt/ml/input/data/train_dataset/train/dataset.arrow'
-valid_file_path = '/opt/ml/input/data/train_dataset/validation/dataset.arrow'
-test_file_path = '/opt/ml/input/data/test_dataset/validation/dataset.arrow'
+train_file_path = '../data/train_dataset/train/dataset.arrow'
+valid_file_path = '../data/train_dataset/validation/dataset.arrow'
+test_file_path = '../data/test_dataset/validation/dataset.arrow'
 
 # Arrow 파일에서 데이터 스트림 생성
 with open(train_file_path, 'rb') as f:

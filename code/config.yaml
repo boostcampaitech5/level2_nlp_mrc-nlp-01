@@ -4,14 +4,14 @@ retriever:
 
 
 reader: 
-  model_name_or_path: '../output/2023-06-12-17:47/reader' # 훈련된 폴더 경로 가능
+  model_name_or_path: 'klue/bert-base' # 훈련된 폴더 경로 가능
   max_seq_len: 256
   doc_stride: 128
   batch_size: 16
   n_epochs: 2
   learning_rate: 2e-5
   save_dir: 'reader'
-  train: False
+  train: True
 
 
 path:
