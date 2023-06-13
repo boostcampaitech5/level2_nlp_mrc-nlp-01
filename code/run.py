@@ -6,7 +6,7 @@ from train import train_reader
 from omegaconf import OmegaConf
 
 from haystack.document_stores import ElasticsearchDocumentStore
-from haystack.nodes import PreProcessor, BM25Retriever, FARMReader, DensePassageRetriever, DenseRetriever, TfidfRetriever, DensePassageRetriever
+from haystack.nodes import PreProcessor, BM25Retriever, FARMReader, DensePassageRetriever, DenseRetriever, TfidfRetriever
 from haystack.pipelines import ExtractiveQAPipeline
 from haystack.nodes import SentenceTransformersRanker, TransformersSummarizer
 import logging
@@ -38,7 +38,8 @@ if __name__ == "__main__":
     )
 
     ## retriever
-    retriever = BM25Retriever(document_store=document_store, top_k=10)
+    # retriever = BM25Retriever(document_store=document_store)
+    retriever = TfidfRetriever(document_store=document_store)
 
     ## reader
     reader = FARMReader(

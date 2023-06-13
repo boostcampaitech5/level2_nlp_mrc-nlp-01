@@ -63,6 +63,7 @@ def read_tables(filename):
     return docs
 
 tables = read_tables(filename)
+print(tables[1].content)
 print(f'document_store에 문서 저장중...약 5분 정도 소요됩니다.')
 document_store.write_documents(tables)
 print(f"{document_store.get_document_count()}개 문서가 저장되었습니다")
