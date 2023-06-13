@@ -86,7 +86,7 @@ if __name__ == "__main__":
     
     ## 파이프라인 평가 결과 저장
     eval_labels = document_store.get_all_labels_aggregated(drop_negative_labels=True, drop_no_answers=True)
-    eval_result = pipeline.eval(labels=eval_labels, params={"Retriever": {"top_k": config.retriever.top_k}, "Reader": {"top_k": config.reader.top_k}})
+    eval_result = pipeline.eval(labels=eval_labels, params={"Retriever": {"top_k": config.inference.retriever_top_k}, "Reader": {"top_k": config.inference.reader_top_k}})
 
     retriever_result = eval_result["Retriever"]
     reader_result = eval_result["Reader"]
