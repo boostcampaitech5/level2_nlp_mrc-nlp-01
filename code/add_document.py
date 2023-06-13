@@ -17,6 +17,15 @@ def read_documents(path):
     """
     
     document_list = []
+
+    preprocessor = PreProcessor(
+        clean_empty_lines=True,
+        clean_whitespace=True,
+        clean_header_footer=False,
+        split_by="word",
+        split_length=300,
+        split_respect_sentence_boundary=True,
+    )
     
     with open(path) as tables:
         tables = json.load(tables)
@@ -37,7 +46,8 @@ def read_documents(path):
         document = Document(content=document['content'], id=str(document['meta']['document_id']), meta=document['meta'])
         document_list.append(document)
 
-    return document_list 
+    preprocessed_document_list = preprocessor.process(document_list)
+    return preprocessed_document_list 
 
 
 def clean_document_store(document_store):
