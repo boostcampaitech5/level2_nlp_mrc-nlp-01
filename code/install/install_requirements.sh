@@ -9,11 +9,6 @@ pip install --upgrade evaluate
 pip install tqdm
 pip install pandas
 pip install scikit-learn
-pip install rapidfuzz
 
 # faiss install (if you want to)
 pip install faiss-gpu
-
-# custom
-pip install omegaconf
-pip install farm-haystack
