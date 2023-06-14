@@ -1,6 +1,42 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
+@dataclass
+class ModelTrainingArguments:
+    '''
+    Model 학습에 필요한 Arguments들 정의
+
+    '''
+    num_train_epochs: int = field(
+        default=10,
+        metadata={
+            "help": "number of train epochs"
+        },
+    )
+    per_device_train_batch_size: int = field(
+        default=8,
+        metadata={
+            "help": "batch_size"
+        },
+    )
+    learning_rate: float = field(
+        default=5e-05,
+        metadata={
+            "help": "learning_rate"
+        },
+    )
+    weight_decay: float = field(
+        default=0.01,
+        metadata={
+            "help": "weight_decay"
+        },
+    )
+    warmup_steps: int = field(
+        default=300,
+        metadata={
+            "help": "warmup_steps"
+        },
+    )
 
 @dataclass
 class ModelArguments:
@@ -9,7 +45,7 @@ class ModelArguments:
     """
 
     model_name_or_path: str = field(
-        default='Nonegom/roberta_finetune_twice',  #> "klue/bert-base"
+        default='klue/roberta-large',  #> "klue/bert-base"
         metadata={
             "help": "Path to pretrained model or model identifier from huggingface.co/models"
         },
@@ -90,4 +126,5 @@ class DataTrainingArguments:
     use_faiss: bool = field(
         default=False, metadata={"help": "Whether to build with faiss"}
     )
+
 
