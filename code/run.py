@@ -46,10 +46,11 @@ if __name__ == "__main__":
     )
 
     ## retriever init
-    retriever = BM25Retriever(
-        document_store=document_store,
-        top_k=config.retriever.top_k
-    )
+    if config.retriever_name == 'bm25':
+        retriever = BM25Retriever(document_store=document_store, top_k=config.retriever.top_k)
+        
+    elif config.retriever_name == 'tf':
+        retriever = TfidfRetriever(document_store=document_store, top_k=config.retriever.top_k)
 
     ## reader init
     reader = FARMReader(
@@ -83,6 +84,7 @@ if __name__ == "__main__":
     # pipeline.add_node(component=ranker, name='Ranker', inputs=['Retriever'])
     # pipeline.add_node(component=summarizer, name='Summarizer', inputs=['Ranker'])
     
+
     ## inference
     inference(config, pipeline)
     
