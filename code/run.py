@@ -46,10 +46,10 @@ if __name__ == "__main__":
     )
 
     ## retriever init
-    if config.retriever_name == 'bm25':
+    if config.retriever.retriever_name == 'bm25':
         retriever = BM25Retriever(document_store=document_store, top_k=config.retriever.top_k)
-        
-    elif config.retriever_name == 'tf':
+
+    elif config.retriever.retriever_name == 'tf':
         retriever = TfidfRetriever(document_store=document_store, top_k=config.retriever.top_k)
 
     ## reader init
