@@ -31,8 +31,6 @@ class Retrieval:
         self.ids = list(range(len(self.contexts)))
         self.tokenize_fn = tokenize_fn
 
-    def get_sparse_embedding(self):
-        pass
     def retrieve(self, query_or_dataset: Union[str, Dataset], topk: Optional[int] = 1) -> Union[Tuple[List, List], pd.DataFrame]:
         if isinstance(query_or_dataset, str):
             doc_scores, doc_indices = self.get_relevant_doc(query_or_dataset, k=topk)
@@ -45,7 +43,6 @@ class Retrieval:
             return (doc_scores, [self.contexts[doc_indices[i]] for i in range(topk)])
 
         elif isinstance(query_or_dataset, Dataset):
-
             # Retrieve한 Passage를 pd.DataFrame으로 반환합니다.
             total = []
             with timer("query exhaustive search"):
@@ -57,9 +54,7 @@ class Retrieval:
                     "id": example["id"],
                     # Retrieve한 Passage의 id, context를 반환합니다.
                     "context_id": doc_indices[idx],
-                    "context": " ".join(
-                        [self.contexts[pid] for pid in doc_indices[idx]]
-                    ),
+                    "context": " ".join([self.contexts[pid] for pid in doc_indices[idx]]),
                 }
                 if "context" in example.keys() and "answers" in example.keys():
                     # validation 데이터를 사용하면 ground_truth context와 answer도 반환합니다.
@@ -69,7 +64,8 @@ class Retrieval:
 
             cqas = pd.DataFrame(total)
             return cqas
-            
+    def get_sparse_embedding(self):
+        pass
     def get_relevant_doc(self, query: str, k: Optional[int] = 1) -> Tuple[List, List]:
         pass
     def get_relevant_doc_bulk(self, queries: List, k: Optional[int] = 1) -> Tuple[List, List]:
