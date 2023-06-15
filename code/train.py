@@ -19,6 +19,8 @@ from transformers import (
 )
 from utils_qa import check_no_error, postprocess_qa_predictions
 import torch
+import wandb
+
 
 torch.cuda.empty_cache()
 logger = logging.getLogger(__name__)
@@ -209,6 +211,7 @@ def run_mrc(data_args: DataTrainingArguments, training_args: TrainingArguments, 
         따라서 predictions의 EM, f1 2개 값 중 f1만 사용하도록 설정
         '''
         predictions = metric.compute(predictions=p.predictions, references=p.label_ids)
+        wandb.log(predictions)
         print(predictions)
         return {'eval_f1' : predictions['f1']}
         #return predictions
@@ -273,4 +276,6 @@ def run_mrc(data_args: DataTrainingArguments, training_args: TrainingArguments, 
 
 
 if __name__ == "__main__":
+    wandb.login(key= 'your-key')
+    wandb.init(project="MRC-Project")
     main()
