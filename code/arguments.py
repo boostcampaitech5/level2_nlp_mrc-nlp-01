@@ -1,5 +1,72 @@
 from dataclasses import dataclass, field
 from typing import Optional
+from transformers import TrainingArguments
+
+@dataclass
+class ModelTrainingArguments(TrainingArguments):
+    '''
+    Model 학습에 필요한 Arguments들 정의
+    '''
+    num_train_epochs: int = field(
+        default=7,
+        metadata={
+            "help": "number of train epochs"
+        },
+    )
+    per_device_train_batch_size: int = field(
+        default=16,
+        metadata={
+            "help": "batch_size"
+        },
+    )
+    learning_rate: float = field(
+        default=5e-06,
+        metadata={
+            "help": "learning_rate"
+        },
+    )
+    save_total_limit: int = field(
+        default=3,
+        metadata={
+            "help": "save total limit"
+        },
+    )
+    weight_decay: float = field(
+        default=0.01,
+        metadata={
+            "help": "weight_decay"
+        },
+    )
+    warmup_steps: int = field(
+        default=300,
+        metadata={
+            "help": "warmup_steps"
+        },
+    )
+    evaluation_strategy: str = field(
+        default="epoch",
+        metadata={
+            "help": "evaluation step"
+        },
+    )
+    save_strategy: str = field(
+        default="epoch",
+        metadata={
+            "help": "save_strategy, 바꾸고 싶으면 save_step도 함께 바꿔야 함"
+        },
+    )
+    load_best_model_at_end: bool = field(
+        default=True,
+        metadata={
+            "help": "load_best"
+        },
+    )
+    metric_for_best_model: str = field(
+        default='f1',
+        metadata={
+            "help": "metric"
+        },
+    )
 
 
 @dataclass
@@ -9,7 +76,7 @@ class ModelArguments:
     """
 
     model_name_or_path: str = field(
-        default='Nonegom/roberta_finetune_twice',  #> "klue/bert-base"
+        default='klue/robert-large',  #> "klue/bert-base"
         metadata={
             "help": "Path to pretrained model or model identifier from huggingface.co/models"
         },
@@ -90,4 +157,5 @@ class DataTrainingArguments:
     use_faiss: bool = field(
         default=False, metadata={"help": "Whether to build with faiss"}
     )
+
 

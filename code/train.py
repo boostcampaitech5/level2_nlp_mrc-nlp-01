@@ -2,7 +2,7 @@ import logging
 import os
 import sys
 
-from arguments import DataTrainingArguments, ModelArguments
+from arguments import DataTrainingArguments, ModelArguments, ModelTrainingArguments
 from datasets import DatasetDict, load_from_disk
 import evaluate
 from trainer_qa import QuestionAnsweringTrainer
@@ -15,16 +15,19 @@ from transformers import (
     HfArgumentParser,
     TrainingArguments,
     set_seed,
+    EarlyStoppingCallback
 )
 from utils_qa import check_no_error, postprocess_qa_predictions
 import torch
+import wandb
+
 
 torch.cuda.empty_cache()
 logger = logging.getLogger(__name__)
 
 
 def main():
-    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments))
+    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, ModelTrainingArguments))
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
     print(model_args.model_name_or_path)
     print(f"model is from {model_args.model_name_or_path}")
@@ -192,9 +195,20 @@ def run_mrc(data_args: DataTrainingArguments, training_args: TrainingArguments, 
     metric = evaluate.load("squad")
 
     def compute_metrics(p: EvalPrediction):
-        return metric.compute(predictions=p.predictions, references=p.label_ids)
+        '''
+        early stopping을 사용하는 경우에는 compute_metrics의 return 값이 1개만 설정되어 있어야 함
+        따라서 predictions의 EM, f1 2개 값 중 f1만 사용하도록 설정
+        '''
+        predictions = metric.compute(predictions=p.predictions, references=p.label_ids)
+        wandb.log(predictions)
+        return {'eval_f1' : predictions['f1']}
+
 
     # Trainer 초기화
+    early_stopping_callback = EarlyStoppingCallback(
+        early_stopping_patience=3,
+    )  
+    
     trainer = QuestionAnsweringTrainer(
         model=model,
         args=training_args,
@@ -205,10 +219,12 @@ def run_mrc(data_args: DataTrainingArguments, training_args: TrainingArguments, 
         data_collator=data_collator,
         post_process_function=post_processing_function,
         compute_metrics=compute_metrics,
+        callbacks=[early_stopping_callback]
     )
 
     # Training
     if training_args.do_train:
+        torch.cuda.empty_cache()
         if last_checkpoint is not None:
             checkpoint = last_checkpoint
         elif os.path.isdir(model_args.model_name_or_path):
@@ -248,4 +264,7 @@ def run_mrc(data_args: DataTrainingArguments, training_args: TrainingArguments, 
 
 
 if __name__ == "__main__":
+    wandb.login(key= 'your-API-Key')
+    wandb.init(project="MRC-Project")
+    wandb.run.name = 'your-run-name'
     main()
