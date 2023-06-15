@@ -16,6 +16,7 @@ from transformers import (
     TrainingArguments,
     set_seed,
 )
+from transformers.callbacks import EarlyStoppingCallback
 from utils_qa import check_no_error, postprocess_qa_predictions
 import torch
 
@@ -24,12 +25,13 @@ logger = logging.getLogger(__name__)
 
 
 def main():
-    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments))
+    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, ModelTrainingArguments))
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
     print(model_args.model_name_or_path)
     print(f"model is from {model_args.model_name_or_path}")
     print(f"data is from {data_args.dataset_name}")
 
+    '''
     model_train_args = ModelTrainingArguments
     
     training_args.num_train_epochs = model_train_args.num_train_epochs
@@ -37,7 +39,7 @@ def main():
     training_args.learning_rate = model_train_args.learning_rate
     training_args.weight_decay = model_train_args.weight_decay
     training_args.warmup_steps = model_train_args.warmup_steps
-    
+    '''
     
     print(training_args)
     # [참고] argument를 manual하게 수정하고 싶은 경우에 아래와 같은 방식을 사용할 수 있습니다
@@ -205,6 +207,7 @@ def run_mrc(data_args: DataTrainingArguments, training_args: TrainingArguments, 
         return metric.compute(predictions=p.predictions, references=p.label_ids)
 
     # Trainer 초기화
+    early_stopping_callback = EarlyStoppingCallback(early_stopping_patience=3)  
     trainer = QuestionAnsweringTrainer(
         model=model,
         args=training_args,
@@ -215,6 +218,7 @@ def run_mrc(data_args: DataTrainingArguments, training_args: TrainingArguments, 
         data_collator=data_collator,
         post_process_function=post_processing_function,
         compute_metrics=compute_metrics,
+        callbacks=[early_stopping_callback]
     )
 
     # Training
