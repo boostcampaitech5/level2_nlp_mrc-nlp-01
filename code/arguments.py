@@ -76,7 +76,7 @@ class ModelArguments:
     """
 
     model_name_or_path: str = field(
-        default='klue/bert-base',  #> "klue/bert-base"
+        default='klue/robert-large',  #> "klue/bert-base"
         metadata={
             "help": "Path to pretrained model or model identifier from huggingface.co/models"
         },
