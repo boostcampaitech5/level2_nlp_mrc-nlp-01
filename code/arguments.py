@@ -14,7 +14,7 @@ class ModelTrainingArguments(TrainingArguments):
         },
     )
     per_device_train_batch_size: int = field(
-        default=8,
+        default=16,
         metadata={
             "help": "batch_size"
         },
@@ -61,6 +61,13 @@ class ModelTrainingArguments(TrainingArguments):
             "help": "load_best"
         },
     )
+    metric_for_best_model: str = field(
+        default='f1',
+        metadata={
+            "help": "metric"
+        },
+    )
+
 
 @dataclass
 class ModelArguments:
@@ -69,7 +76,7 @@ class ModelArguments:
     """
 
     model_name_or_path: str = field(
-        default='klue/roberta-large',  #> "klue/bert-base"
+        default='klue/bert-base',  #> "klue/bert-base"
         metadata={
             "help": "Path to pretrained model or model identifier from huggingface.co/models"
         },
