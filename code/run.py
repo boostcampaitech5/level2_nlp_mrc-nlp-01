@@ -6,9 +6,11 @@ from train import train_reader
 from omegaconf import OmegaConf
 import shutil
 
+from sparse import TfidfRetriever
+
 from transformers import set_seed
 from haystack.document_stores import ElasticsearchDocumentStore
-from haystack.nodes import PreProcessor, BM25Retriever, FARMReader, TfidfRetriever, DensePassageRetriever, EmbeddingRetriever
+from haystack.nodes import PreProcessor, BM25Retriever, FARMReader, DensePassageRetriever, EmbeddingRetriever
 from haystack.pipelines import ExtractiveQAPipeline
 from haystack.nodes import SentenceTransformersRanker, TransformersSummarizer
 import logging
@@ -44,10 +46,11 @@ if __name__ == "__main__":
     )
 
     ## retriever init
-    retriever = BM25Retriever(
-        document_store=document_store,
-        top_k=config.retriever.top_k
-    )
+    if config.retriever.retriever_name == 'bm25':
+        retriever = BM25Retriever(document_store=document_store, top_k=config.retriever.top_k)
+
+    elif config.retriever.retriever_name == 'tf':
+        retriever = TfidfRetriever(document_store=document_store, top_k=config.retriever.top_k)
 
     ## reader init
     reader = FARMReader(
@@ -81,6 +84,7 @@ if __name__ == "__main__":
     # pipeline.add_node(component=ranker, name='Ranker', inputs=['Retriever'])
     # pipeline.add_node(component=summarizer, name='Summarizer', inputs=['Ranker'])
     
+
     ## inference
     inference(config, pipeline)
     
