@@ -1,9 +1,8 @@
-#!/bin/bash
 ### install requirements for pstage3 baseline
 # pip requirements
 pip install torch==2.0.1
 pip install datasets==2.12.0
-pip install transformers==4.29.2
+pip install transformers==4.29.1
 pip install --upgrade accelerate
 pip install --upgrade evaluate
 pip install tqdm
@@ -17,3 +16,5 @@ pip install faiss-gpu
 # custom
 pip install omegaconf
 pip install farm-haystack
+pip install --ignore-installed PyYAML farm-haystack[all-gpu,preprocessing,elasticsearch,metrics]
+pip install psutil==5.9.1
