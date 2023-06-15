@@ -1,14 +1,14 @@
 from dataclasses import dataclass, field
 from typing import Optional
+from transformers import TrainingArguments
 
 @dataclass
-class ModelTrainingArguments:
+class ModelTrainingArguments(TrainingArguments):
     '''
     Model 학습에 필요한 Arguments들 정의
-
     '''
     num_train_epochs: int = field(
-        default=10,
+        default=7,
         metadata={
             "help": "number of train epochs"
         },
@@ -20,9 +20,15 @@ class ModelTrainingArguments:
         },
     )
     learning_rate: float = field(
-        default=5e-05,
+        default=5e-06,
         metadata={
             "help": "learning_rate"
+        },
+    )
+    save_total_limit: int = field(
+        default=3,
+        metadata={
+            "help": "save total limit"
         },
     )
     weight_decay: float = field(
@@ -35,6 +41,24 @@ class ModelTrainingArguments:
         default=300,
         metadata={
             "help": "warmup_steps"
+        },
+    )
+    evaluation_strategy: str = field(
+        default="epoch",
+        metadata={
+            "help": "evaluation step"
+        },
+    )
+    save_strategy: str = field(
+        default="epoch",
+        metadata={
+            "help": "save_strategy, 바꾸고 싶으면 save_step도 함께 바꿔야 함"
+        },
+    )
+    load_best_model_at_end: bool = field(
+        default=True,
+        metadata={
+            "help": "load_best"
         },
     )
 
