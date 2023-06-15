@@ -204,10 +204,20 @@ def run_mrc(data_args: DataTrainingArguments, training_args: TrainingArguments, 
     metric = evaluate.load("squad")
 
     def compute_metrics(p: EvalPrediction):
-        return metric.compute(predictions=p.predictions, references=p.label_ids)
+        '''
+        early stopping을 사용하는 경우에는 compute_metrics의 return 값이 1개만 설정되어 있어야 함
+        따라서 predictions의 EM, f1 2개 값 중 f1만 사용하도록 설정
+        '''
+        predictions = metric.compute(predictions=p.predictions, references=p.label_ids)
+        print(predictions)
+        return {'eval_f1' : predictions['f1']}
+        #return predictions
 
     # Trainer 초기화
-    early_stopping_callback = EarlyStoppingCallback(early_stopping_patience=3)  
+    early_stopping_callback = EarlyStoppingCallback(
+        early_stopping_patience=3,
+    )  
+    
     trainer = QuestionAnsweringTrainer(
         model=model,
         args=training_args,
