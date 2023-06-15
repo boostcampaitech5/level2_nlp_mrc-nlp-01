@@ -33,16 +33,6 @@ def main():
     print(f"model is from {model_args.model_name_or_path}")
     print(f"data is from {data_args.dataset_name}")
 
-    '''
-    model_train_args = ModelTrainingArguments
-    
-    training_args.num_train_epochs = model_train_args.num_train_epochs
-    training_args.per_device_train_batch_size = model_train_args.per_device_train_batch_size
-    training_args.learning_rate = model_train_args.learning_rate
-    training_args.weight_decay = model_train_args.weight_decay
-    training_args.warmup_steps = model_train_args.warmup_steps
-    '''
-    
     print(training_args)
     # [참고] argument를 manual하게 수정하고 싶은 경우에 아래와 같은 방식을 사용할 수 있습니다
     # training_args.per_device_train_batch_size = 4
