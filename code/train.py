@@ -15,8 +15,8 @@ from transformers import (
     HfArgumentParser,
     TrainingArguments,
     set_seed,
+    EarlyStoppingCallback
 )
-from transformers.callbacks import EarlyStoppingCallback
 from utils_qa import check_no_error, postprocess_qa_predictions
 import torch
 
