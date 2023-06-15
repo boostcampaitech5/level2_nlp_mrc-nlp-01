@@ -13,3 +13,15 @@ code/__pycache__
 code/.ipynb_checkpoints
 /result
 code/py-hanspell-master
+code/mlruns
+code/models
+code/outputs
+
+
+myhaystack/base_code
+myhaystack/nohup.out
+myhaystack/assets
+myhaystack/__pycache__
+myhaystack/.ipynb_checkpoints
+/result
+myhaystack/py-hanspell-master
