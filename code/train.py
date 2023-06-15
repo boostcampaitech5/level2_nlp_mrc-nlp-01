@@ -201,9 +201,8 @@ def run_mrc(data_args: DataTrainingArguments, training_args: TrainingArguments, 
         '''
         predictions = metric.compute(predictions=p.predictions, references=p.label_ids)
         wandb.log(predictions)
-        print(predictions)
         return {'eval_f1' : predictions['f1']}
-        #return predictions
+
 
     # Trainer 초기화
     early_stopping_callback = EarlyStoppingCallback(
