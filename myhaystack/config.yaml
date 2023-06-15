@@ -1,4 +1,5 @@
 retriever:
+  retriever_name: 'bm25'
   query_model_name_or_path: 'klue/bert-base'
   passage_model_name_or_path: 'klue/bert-base'
   top_k: 10
@@ -7,7 +8,7 @@ retriever:
 reader:
   ## https://docs.haystack.deepset.ai/reference/reader-api#farmreader__init__
   init: 
-    model_name_or_path: 'klue/bert-base' # ex) '../output/2023-06-13-14:53/reader'
+    model_name_or_path: '/opt/ml/input/code/models/train_dataset' # ex) '../output/2023-06-13-14:53/reader'
     context_window_size: 150
     max_seq_len: 256
     doc_stride: 128
@@ -26,7 +27,7 @@ reader:
     batch_size: 16
     warmup_proportion: 0.1
     save_dir: 'reader'
-  is_train: True # True일 경우 훈련을 진행합니다. False일 경우 훈련을 진행하지 않습니다
+  is_train: False # True일 경우 훈련을 진행합니다. False일 경우 훈련을 진행하지 않습니다
 
 inference:
   retriever_top_k: 10
