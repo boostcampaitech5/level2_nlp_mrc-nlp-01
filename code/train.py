@@ -267,11 +267,8 @@ def run_mrc(data_args: DataTrainingArguments, training_args: TrainingArguments, 
 
 
 if __name__ == "__main__":
-<<<<<<< HEAD
+
     # wandb.login(key= 'your-API-Key')
-=======
-    wandb.login(key= 'your-API-key')
->>>>>>> origin/master
     wandb.init(project="MRC-Project")
     
     now = datetime.now(timezone('Asia/Seoul'))
