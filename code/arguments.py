@@ -64,7 +64,7 @@ class ModelTrainingArguments(TrainingArguments):
     metric_for_best_model: str = field(
         default='f1',
         metadata={
-            "help": "metric"
+            "help": "metric (f1 / exact_match) 중 하나 입력"
         },
     )
 

@@ -264,7 +264,7 @@ def run_mrc(data_args: DataTrainingArguments, training_args: TrainingArguments, 
 
 
 if __name__ == "__main__":
-    wandb.login(key= '28c2410815e7aa7e1b762a66d5dc91dc8edb48d8')
+    wandb.login(key= 'your-API-key')
     wandb.init(project="MRC-Project")
     wandb.run.name = 'your-run-name'
     main()
