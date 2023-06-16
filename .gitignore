@@ -16,7 +16,7 @@ code/py-hanspell-master
 code/mlruns
 code/models
 code/outputs
-
+code/wandb
 
 myhaystack/base_code
 myhaystack/nohup.out
