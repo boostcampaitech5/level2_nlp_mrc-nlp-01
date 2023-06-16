@@ -8,7 +8,7 @@ class ModelTrainingArguments(TrainingArguments):
     Model 학습에 필요한 Arguments들 정의
     '''
     num_train_epochs: int = field(
-        default=7,
+        default=5,
         metadata={
             "help": "number of train epochs"
         },
@@ -20,7 +20,7 @@ class ModelTrainingArguments(TrainingArguments):
         },
     )
     learning_rate: float = field(
-        default=5e-06,
+        default=9e-06,
         metadata={
             "help": "learning_rate"
         },
@@ -38,7 +38,7 @@ class ModelTrainingArguments(TrainingArguments):
         },
     )
     warmup_steps: int = field(
-        default=300,
+        default=500,
         metadata={
             "help": "warmup_steps"
         },
@@ -76,7 +76,7 @@ class ModelArguments:
     """
 
     model_name_or_path: str = field(
-        default='klue/robert-large',  #> "klue/bert-base"
+        default='klue/roberta-large',  #> "klue/bert-base"
         metadata={
             "help": "Path to pretrained model or model identifier from huggingface.co/models"
         },
@@ -149,7 +149,7 @@ class DataTrainingArguments:
         default=64, metadata={"help": "Define how many clusters to use for faiss."}
     )
     top_k_retrieval: int = field(
-        default=10,
+        default=40,
         metadata={
             "help": "Define how many top-k passages to retrieve based on similarity."
         },

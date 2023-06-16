@@ -4,6 +4,7 @@
 *.ipynb
 code/elasticsearch-7.9.2
 code/saved_models
+code/kibana-7.9.2-linux-x86_64
 
 # custom
 code/base_code
@@ -16,7 +17,9 @@ code/py-hanspell-master
 code/mlruns
 code/models
 code/outputs
-
+code/wandb
+/outputs
+/models
 
 myhaystack/base_code
 myhaystack/nohup.out
