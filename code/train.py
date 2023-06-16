@@ -204,7 +204,7 @@ def run_mrc(data_args: DataTrainingArguments, training_args: TrainingArguments, 
         '''
         predictions = metric.compute(predictions=p.predictions, references=p.label_ids)
         wandb.log(predictions)
-        return {'eval_f1' : predictions['f1']}
+        return {'eval_exact_match': predictions['exact_match'], 'eval_f1' : predictions['f1']}
 
 
     # Trainer 초기화
@@ -267,7 +267,11 @@ def run_mrc(data_args: DataTrainingArguments, training_args: TrainingArguments, 
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     # wandb.login(key= 'your-API-Key')
+=======
+    wandb.login(key= 'your-API-key')
+>>>>>>> origin/master
     wandb.init(project="MRC-Project")
     
     now = datetime.now(timezone('Asia/Seoul'))
