@@ -9,6 +9,7 @@ pip install tqdm
 pip install pandas
 pip install scikit-learn
 pip install wandb
+pip install rank_bm25
 
 # faiss install (if you want to)
 pip install faiss-gpu
