@@ -1,0 +1,46 @@
+{
+    "settings": {
+        "analysis": {
+            "analyzer": {
+                "my_analyzer": {
+                    "type": "custom",
+                    "char_filter": ["html_strip"],
+                    "tokenizer": "nori_test_tokenizer",
+                    "filter": ["nori_readingform", "nori_part_of_speech", "stopwords"]
+                }
+            },
+            "tokenizer": {
+                "nori_test_tokenizer": {
+                    "type": "nori_tokenizer",
+                    "decompound_mode": "mixed",
+                    "discard_punctuation": "true"
+                }
+            },
+            "filter": {
+                "nori_readingform": {
+                    "type": "nori_readingform",
+                    "mode": "all"
+                },
+                "nori_number": {
+                    "type": "nori_number",
+                    "mode": "all"
+                },
+                "nori_part_of_speech": {
+                    "type": "nori_part_of_speech",
+                    "mode": "all",
+                    "stoptags": [
+                        "E", "IC", "J", "MAG", "MAJ",
+                        "MM", "SP", "SSC", "SSO", "SC",
+                        "SE", "XPN", "XSA", "XSN", "XSV",
+                        "UNA", "NA", "VSV"
+                      ]
+                },
+                "stopwords": {
+                    "type": "stop",
+                    "stopwords": " ",
+                    "mode": "all"    
+                }
+            }
+        }
+    }
+}

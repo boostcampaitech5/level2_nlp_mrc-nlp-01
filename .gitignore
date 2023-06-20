@@ -28,3 +28,10 @@ myhaystack/__pycache__
 myhaystack/.ipynb_checkpoints
 /result
 myhaystack/py-hanspell-master
+
+!data
+*.json
+data/*
+!data/settings.json
+!install/
+*.sh
