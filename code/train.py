@@ -1,6 +1,9 @@
 import logging
 import os
 import sys
+import datetime
+from datetime import datetime
+from pytz import timezone
 
 from arguments import DataTrainingArguments, ModelArguments, ModelTrainingArguments
 from datasets import DatasetDict, load_from_disk
@@ -256,7 +259,7 @@ def run_mrc(data_args: DataTrainingArguments, training_args: TrainingArguments, 
     if training_args.do_eval:
         logger.info("*** Evaluate ***")
         metrics = trainer.evaluate()
-
+    
         metrics["eval_samples"] = len(eval_dataset)
 
         trainer.log_metrics("eval", metrics)
@@ -264,7 +267,10 @@ def run_mrc(data_args: DataTrainingArguments, training_args: TrainingArguments, 
 
 
 if __name__ == "__main__":
-    wandb.login(key= 'your-API-key')
+
+    # wandb.login(key= 'your-API-Key')
     wandb.init(project="MRC-Project")
-    wandb.run.name = 'your-run-name'
+    
+    now = datetime.now(timezone('Asia/Seoul'))
+    wandb.run.name = now.strftime('%Y-%m-%d-%H:%M')
     main()
