@@ -12,6 +12,7 @@ from datasets import Dataset, concatenate_datasets, load_from_disk
 from sklearn.feature_extraction.text import TfidfVectorizer
 from tqdm.auto import tqdm
 from rank_bm25 import BM25Okapi
+from elasticsearch_client import ElasticsearchClient
 
 
 @contextmanager
@@ -76,6 +77,7 @@ class BM25(Retrieval):
     def __init__(self, tokenize_fn, data_path: Optional[str] = "../data/",  context_path: Optional[str] = "wikipedia_documents.json"):
         super().__init__(tokenize_fn, data_path, context_path)
         self.bm25 = None
+        
     def get_sparse_embedding(self):
         with timer("bm25 building"):
             self.bm25 = BM25Okapi(self.contexts, tokenizer=self.tokenize_fn) 
@@ -103,6 +105,71 @@ class BM25(Retrieval):
             doc_indices.append(sorted_result.tolist()[:k])
         return doc_scores, doc_indices
 
+
+class ElasticsearchRetrieval:
+    def __init__(self):
+        self.client = ElasticsearchClient()
+        self.index_name = 'wiki_documents'
+        self.analyzer = "standard"
+        
+    def retrieve(self, query_or_dataset: Union[str, Dataset], topk: Optional[int] = 1) -> Union[Tuple[List, List], pd.DataFrame]:
+        if isinstance(query_or_dataset, str):
+            doc_scores, doc_indices, doc = self.get_relevant_doc(query_or_dataset, k=topk)
+            print("[Search query]\n", query_or_dataset, "\n")
+
+            for i in range(topk):
+                print(f"Top-{i+1} passage with score {doc_scores[i]:4f}")
+                print(doc[i])
+
+            return (doc_scores, [[doc[i]] for i in range(topk)])
+
+        elif isinstance(query_or_dataset, Dataset):
+            # Retrieve한 Passage를 pd.DataFrame으로 반환합니다.
+            total = []
+            with timer("query exhaustive search"):
+                doc_scores, doc_indices, doc = self.get_relevant_doc_bulk(query_or_dataset["question"], k=topk)
+            for idx, example in enumerate(tqdm(query_or_dataset, desc="Sparse retrieval: ")):
+                tmp = {
+                    # Query와 해당 id를 반환합니다.
+                    "question": example["question"],
+                    "id": example["id"],
+                    # Retrieve한 Passage의 id, context를 반환합니다.
+                    "context_id": doc_indices[idx],
+                    "context": " ".join(d for d in doc[idx]),
+                }
+                if "context" in example.keys() and "answers" in example.keys():
+                    # validation 데이터를 사용하면 ground_truth context와 answer도 반환합니다.
+                    tmp["original_context"] = example["context"]
+                    tmp["answers"] = example["answers"]
+                total.append(tmp)
+
+            cqas = pd.DataFrame(total)
+            return cqas
+        
+    def get_relevant_doc(self, query: str, k: Optional[int] = 1):
+        ## elasticsearch 검색
+        response = self.client.client_search(self.index_name, query, top_k=k, analyzer=self.analyzer)
+        
+        ## 검색결과를 doc, doc_score로 변환
+        doc = [response['hits']['hits'][i]['_source']['document_text'] for i in range(len(response['hits']))]
+        doc_indices = [response['hits']['hits'][i]['_id']['document_text'] for i in range(len(response['hits']))]
+        doc_scores = [response['hits']['hits'][i]['_score'] for i in range(len(response['hits']))]
+        
+        return doc_scores, doc_indices, doc
+    
+    def get_relevant_doc_bulk(self, queries: List, k: Optional[int] = 1):
+        ## elasticsearch 검색
+        response = self.client.client_msearch(self.index_name, queries, top_k=k, analyzer=self.analyzer)
+        
+        ## 검색결과를 doc, doc_score로 변환
+        doc = [[response['responses'][i]['hits']['hits'][j]['_source']['document_text'] for j in range(len(response['responses'][i]['hits']))] for i in range(len(response['responses']))]
+        doc_indices = [[response['responses'][i]['hits']['hits'][j]['_id'] for j in range(len(response['responses'][i]['hits']))] for i in range(len(response['responses']))]
+        doc_scores = [[response['responses'][i]['hits']['hits'][j]['_score'] for j in range(len(response['responses'][i]['hits']))] for i in range(len(response['responses']))]
+        
+        return doc_scores, doc_indices, doc
+        
+        
+    
 
 class SparseRetrieval:
     def __init__(self, tokenize_fn, data_path: Optional[str] = "../data/", context_path: Optional[str] = "wikipedia_documents.json",) -> None:
