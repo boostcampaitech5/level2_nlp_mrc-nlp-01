@@ -159,3 +159,12 @@ class DataTrainingArguments:
     )
 
 
+@dataclass
+class RetrievalArguments:
+    """
+    Argument to set which passage retriever to select among BM25, BM25_Plus, and BM25_L.
+    """
+    retrieval_name: Optional[str] = field(
+        default="BM25",
+        metadata={"help": "The name of the passage retriever."},
+    )
