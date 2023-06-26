@@ -31,7 +31,7 @@ def curri_extract(a, b):
 
     my_dict = {'pred_id' : pred_id, 'pred_label':pred_label, 'target_id':target_id, 'target_label':target_label}
     df = pd.DataFrame(my_dict)
-    df.to_csv('curriculum_pre_roberta')
+    df.to_csv('curriculum_pre_roberta', index = False)
     
 
 
@@ -40,8 +40,6 @@ if __name__ == "__main__":
     df = pd.read_csv('curriculum_pre_roberta.csv')
 
     df['EM'] = (df['pred_label'] == df['target_label']).astype(int)
-
-    df = df.drop('Unnamed: 0', axis=1)
 
     df_easy = df[df['EM'] == 1]
     df_hard = df[df['EM'] == 0]
