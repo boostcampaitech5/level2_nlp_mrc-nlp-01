@@ -10,7 +10,7 @@ import sys
 from typing import Callable, Dict, List, Tuple
 
 import numpy as np
-from arguments import DataTrainingArguments, ModelArguments
+from arguments import DataTrainingArguments, ModelArguments, RetrievalArguments
 from datasets import (
     Dataset,
     DatasetDict,
@@ -20,7 +20,7 @@ from datasets import (
     load_from_disk
 )
 import evaluate
-from retrieval import SparseRetrieval, BM25, ElasticsearchRetrieval
+from retrieval import SparseRetrieval, BM25, BM25_Plus, BM25_L, ElasticsearchRetrieval, Retriever_Ensemble
 from trainer_qa import QuestionAnsweringTrainer
 from transformers import (
     AutoConfig,
@@ -38,8 +38,8 @@ logger = logging.getLogger(__name__)
 
 
 def main():
-    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments))
-    model_args, data_args, training_args = parser.parse_args_into_dataclasses()
+    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments, RetrievalArguments))
+    model_args, data_args, training_args, retrieval_args = parser.parse_args_into_dataclasses()
     training_args.do_train = True
 
     print(f"model is from {model_args.model_name_or_path}")
@@ -61,25 +61,41 @@ def main():
 
     # True일 경우 : run passage retrieval
     if data_args.eval_retrieval:
-        datasets = run_sparse_retrieval(tokenizer.tokenize, datasets, training_args, data_args,)
+        datasets = run_sparse_retrieval(tokenizer.tokenize, datasets, training_args, data_args, retrieval_args,)
 
     # eval or predict mrc model
     if training_args.do_eval or training_args.do_predict:
         run_mrc(data_args, training_args, model_args, datasets, tokenizer, model)
 
 
-def run_sparse_retrieval(tokenize_fn: Callable[[str], List[str]], datasets: DatasetDict, training_args: TrainingArguments, data_args: DataTrainingArguments, data_path: str = "../data",
+def run_sparse_retrieval(tokenize_fn: Callable[[str], List[str]], datasets: DatasetDict, training_args: TrainingArguments, data_args: DataTrainingArguments, retrieval_args: RetrievalArguments, data_path: str = "../data",
     context_path: str = "wikipedia_documents.json",) -> DatasetDict:
+    retrieval_name = retrieval_args.retrieval_name
 
-    # retriever = SparseRetrieval(tokenize_fn=tokenize_fn, data_path=data_path, context_path=context_path)
-    retriever = BM25(tokenize_fn=tokenize_fn, data_path=data_path, context_path=context_path)
-    # retriever = ElasticsearchRetrieval()
-
-    retriever.get_sparse_embedding()
+    if retrieval_name == "SparseRetrieval":
+        retriever = SparseRetrieval(tokenize_fn=tokenize_fn, data_path=data_path, context_path=context_path)
+    elif retrieval_name == "BM25":
+        retriever = BM25(tokenize_fn=tokenize_fn, data_path=data_path, context_path=context_path)
+    elif retrieval_name == "BM25_Plus":
+        retriever = BM25_Plus(tokenize_fn=tokenize_fn, data_path=data_path, context_path=context_path)
+    elif retrieval_name == "BM25_L":
+        retriever = BM25_L(tokenize_fn=tokenize_fn, data_path=data_path, context_path=context_path)
+    elif retrieval_name == "Elasticsearch":
+        retriever = ElasticsearchRetrieval()
+    elif retrieval_name == "Ensemble":
+        retriever = Retriever_Ensemble(tokenize_fn=tokenize_fn, datasets=datasets, topk=data_args.top_k_retrieval, data_path=data_path, context_path="wikipedia_documents.json",)
+        df = retriever.ensemble_and_rerank()
+    else:
+        raise ValueError("SparseRetrieval, BM25, BM25_Plus, BM25_L, Elasticsearch, Ensemble 중 하나를 정확히 입력해 주세요.")
+    
+    if retrieval_name != "Ensemble" and retrieval_name != "Elasticsearch":
+        retriever.get_sparse_embedding()
 
     if data_args.use_faiss:
         retriever.build_faiss(num_clusters=data_args.num_clusters)
         df = retriever.retrieve_faiss(datasets["validation"], topk=data_args.top_k_retrieval)
+    elif retrieval_name == "Ensemble":
+        print("Retriever Ensemble")
     else:
         df = retriever.retrieve(datasets["validation"], topk=data_args.top_k_retrieval)
 
@@ -111,7 +127,8 @@ def run_sparse_retrieval(tokenize_fn: Callable[[str], List[str]], datasets: Data
                 "context_id": Sequence(Value(dtype="int64", id=None)),
             }
         )
-        
+    if retrieval_name == "SparseRetrieval":
+        del f["context_id"]   
     datasets = DatasetDict({"validation": Dataset.from_pandas(df, features=f)})
     return datasets
 
