@@ -62,6 +62,13 @@ class Retrieval:
                     # validation 데이터를 사용하면 ground_truth context와 answer도 반환합니다.
                     tmp["original_context"] = example["context"]
                     tmp["answers"] = example["answers"]
+                if __name__ == "__main__":
+                    tmp["scores"] = doc_scores[idx]
+                    if tmp["original_context"] in tmp["context"]:
+                        tmp["answer_index"] = [self.contexts[pid] for pid in doc_indices[idx]].index(tmp["original_context"])
+                    else:
+                        tmp["answer_index"] = -1
+                
                 total.append(tmp)
 
             cqas = pd.DataFrame(total)
@@ -107,6 +114,70 @@ class BM25(Retrieval):
         return doc_scores, doc_indices
 
 
+class BM25_Plus(Retrieval):
+    def __init__(self, tokenize_fn, data_path: Optional[str] = "../data/",  context_path: Optional[str] = "wikipedia_documents.json"):
+        super().__init__(tokenize_fn, data_path, context_path)
+        self.bm25_plus = None
+    def get_sparse_embedding(self):
+        with timer("bm25_plus building"):
+            self.bm25_plus = BM25Plus(self.contexts, tokenizer=self.tokenize_fn) 
+    
+    def get_relevant_doc(self, query: str, k: Optional[int] = 1) -> Tuple[List, List]:
+        with timer("transform"):
+            tokenized_query = self.tokenize_fn(query)
+        with timer("query ex search"):
+            result = self.bm25_plus.get_scores(tokenized_query)
+        sorted_result = np.argsort(result)[::-1]
+        doc_score = result[sorted_result].tolist()[:k]
+        doc_indices = sorted_result.tolist()[:k]
+        return doc_score, doc_indices
+
+    def get_relevant_doc_bulk(self, queries: List, k: Optional[int] = 1) -> Tuple[List, List]:
+        with timer("transform"):
+            tokenized_queris = [self.tokenize_fn(query) for query in queries]
+        with timer("query ex search"):
+            result = np.array([self.bm25_plus.get_scores(tokenized_query) for tokenized_query in tqdm(tokenized_queris)])
+        doc_scores = []
+        doc_indices = []
+        for i in range(result.shape[0]):
+            sorted_result = np.argsort(result[i, :])[::-1]
+            doc_scores.append(result[i, :][sorted_result].tolist()[:k])
+            doc_indices.append(sorted_result.tolist()[:k])
+        return doc_scores, doc_indices
+
+
+class BM25_L(Retrieval):
+    def __init__(self, tokenize_fn, data_path: Optional[str] = "../data/",  context_path: Optional[str] = "wikipedia_documents.json"):
+        super().__init__(tokenize_fn, data_path, context_path)
+        self.bm25_l = None
+    def get_sparse_embedding(self):
+        with timer("bm25_l building"):
+            self.bm25_l = BM25L(self.contexts, tokenizer=self.tokenize_fn) 
+    
+    def get_relevant_doc(self, query: str, k: Optional[int] = 1) -> Tuple[List, List]:
+        with timer("transform"):
+            tokenized_query = self.tokenize_fn(query)
+        with timer("query ex search"):
+            result = self.bm25_l.get_scores(tokenized_query)
+        sorted_result = np.argsort(result)[::-1]
+        doc_score = result[sorted_result].tolist()[:k]
+        doc_indices = sorted_result.tolist()[:k]
+        return doc_score, doc_indices
+
+    def get_relevant_doc_bulk(self, queries: List, k: Optional[int] = 1) -> Tuple[List, List]:
+        with timer("transform"):
+            tokenized_queris = [self.tokenize_fn(query) for query in queries]
+        with timer("query ex search"):
+            result = np.array([self.bm25_l.get_scores(tokenized_query) for tokenized_query in tqdm(tokenized_queris)])
+        doc_scores = []
+        doc_indices = []
+        for i in range(result.shape[0]):
+            sorted_result = np.argsort(result[i, :])[::-1]
+            doc_scores.append(result[i, :][sorted_result].tolist()[:k])
+            doc_indices.append(sorted_result.tolist()[:k])
+        return doc_scores, doc_indices
+
+
 class ElasticsearchRetrieval:
     def __init__(self):
         self.client = ElasticsearchClient()
@@ -142,6 +213,13 @@ class ElasticsearchRetrieval:
                     # validation 데이터를 사용하면 ground_truth context와 answer도 반환합니다.
                     tmp["original_context"] = example["context"]
                     tmp["answers"] = example["answers"]
+                if __name__ == "__main__":
+                    tmp["scores"] = doc_scores[idx]
+                    if tmp["original_context"] in tmp["context"]:
+                        tmp["answer_index"] = [self.contexts[pid] for pid in doc_indices[idx]].index(tmp["original_context"])
+                    else:
+                        tmp["answer_index"] = -1
+                
                 total.append(tmp)
 
             cqas = pd.DataFrame(total)
@@ -170,8 +248,6 @@ class ElasticsearchRetrieval:
         return doc_scores, doc_indices, doc
         
         
-    
-
 class SparseRetrieval:
     def __init__(self, tokenize_fn, data_path: Optional[str] = "../data/", context_path: Optional[str] = "wikipedia_documents.json",) -> None:
         self.data_path = data_path
@@ -262,6 +338,13 @@ class SparseRetrieval:
                     # validation 데이터를 사용하면 ground_truth context와 answer도 반환합니다.
                     tmp["original_context"] = example["context"]
                     tmp["answers"] = example["answers"]
+                if __name__ == "__main__":
+                    tmp["scores"] = doc_scores[idx]
+                    if tmp["original_context"] in tmp["context"]:
+                        tmp["answer_index"] = [self.contexts[pid] for pid in doc_indices[idx]].index(tmp["original_context"])
+                    else:
+                        tmp["answer_index"] = -1                     
+                    
                 total.append(tmp)
 
             cqas = pd.DataFrame(total)
@@ -332,6 +415,13 @@ class SparseRetrieval:
                     # validation 데이터를 사용하면 ground_truth context와 answer도 반환합니다.
                     tmp["original_context"] = example["context"]
                     tmp["answers"] = example["answers"]
+                if __name__ == "__main__":
+                    tmp["scores"] = doc_scores[idx]
+                    if tmp["original_context"] in tmp["context"]:
+                        tmp["answer_index"] = [self.contexts[pid] for pid in doc_indices[idx]].index(tmp["original_context"])
+                    else:
+                        tmp["answer_index"] = -1
+                
                 total.append(tmp)
 
             return pd.DataFrame(total)
@@ -356,84 +446,20 @@ class SparseRetrieval:
         return D.tolist(), I.tolist()
 
 
-if __name__ == "__main__":
-
-    import argparse
-
-    parser = argparse.ArgumentParser(description="")
-    parser.add_argument("--dataset_name", metavar="./data/train_dataset", type=str, help="")
-    parser.add_argument(
-        "--model_name_or_path",
-        metavar="bert-base-multilingual-cased",
-        type=str,
-        help="",
-    )
-    parser.add_argument("--data_path", metavar="./data", type=str, help="")
-    parser.add_argument(
-        "--context_path", metavar="wikipedia_documents", type=str, help=""
-    )
-    parser.add_argument("--use_faiss", metavar=False, type=bool, help="")
-
-    args = parser.parse_args()
-
-    # Test sparse
-    org_dataset = load_from_disk(args.dataset_name)
-    full_ds = concatenate_datasets(
-        [
-            org_dataset["train"].flatten_indices(),
-            org_dataset["validation"].flatten_indices(),
-        ]
-    )  # train dev 를 합친 4192 개 질문에 대해 모두 테스트
-    print("*" * 40, "query dataset", "*" * 40)
-    print(full_ds)
-
-    from transformers import AutoTokenizer
-
-    tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path, use_fast=False,)
-
-    retriever = SparseRetrieval(
-        tokenize_fn=tokenizer.tokenize,
-        data_path=args.data_path,
-        context_path=args.context_path,
-    )
-
-    query = "대통령을 포함한 미국의 행정부 견제권을 갖는 국가 기관은?"
-
-    if args.use_faiss:
-
-        # test single query
-        with timer("single query by faiss"):
-            scores, indices = retriever.retrieve_faiss(query)
-
-        # test bulk
-        with timer("bulk query by exhaustive search"):
-            df = retriever.retrieve_faiss(full_ds)
-            df["correct"] = df["original_context"] == df["context"]
-
-            print("correct retrieval result by faiss", df["correct"].sum() / len(df))
-
-    else:
-        with timer("bulk query by exhaustive search"):
-            df = retriever.retrieve(full_ds)
-            df["correct"] = df["original_context"] == df["context"]
-            print(
-                "correct retrieval result by exhaustive search",
-                df["correct"].sum() / len(df),
-            )
-
-        with timer("single query by exhaustive search"):
-            scores, indices = retriever.retrieve(query)
-
-
 class Retriever_Ensemble(Retrieval):
-    def __init__(self, tokenize_fn: Callable[[str], List[str]], datasets, topk: int, data_path: str = "../data", context_path: str = "wikipedia_documents.json",):
+    def __init__(self, tokenize_fn: Callable[[str], List[str]], topk: int, data_path: str = "../data", context_path: str = "wikipedia_documents.json", datasets=None,):
         self.tokenize_fn = tokenize_fn
-        self.datasets = datasets["validation"]
-        self.data_path = data_path
         self.topk = topk
-        self.context_path = context_path
+        self.data_path = data_path
+        self.context_path = context_path        
+        
+        if __name__ == "__main__":
+            self.datasets = datasets
+        else:
+            self.datasets = datasets["validation"]
         with open(os.path.join(data_path, context_path), "r", encoding="utf-8") as f:
             wiki = json.load(f)
+        
         self.contexts = list(dict.fromkeys([v["text"] for v in wiki.values()]))  # set 은 매번 순서가 바뀌므로
 
         self.ids = list(range(len(self.contexts)))
@@ -445,16 +471,31 @@ class Retriever_Ensemble(Retrieval):
         self.bm25.get_sparse_embedding()
         self.bm25_plus.get_sparse_embedding()
 
-        self.tf_idf_scores, self.tf_idf_indices = self.tf_idf.get_relevant_doc_bulk(self.datasets["question"], k=self.topk)
-        self.bm25_scores, self.bm25_indices = self.bm25.get_relevant_doc_bulk(self.datasets["question"], k=self.topk)
-        self.bm25_plus_scores, self.bm25_plus_indices = self.bm25_plus.get_relevant_doc_bulk(self.datasets["question"], k=self.topk)
+        if isinstance(self.datasets, Dataset):
+            self.length_query_or_dataset = len(self.datasets)
+            self.tf_idf_scores, self.tf_idf_indices = self.tf_idf.get_relevant_doc_bulk(self.datasets["question"], k=self.topk)
+            self.bm25_scores, self.bm25_indices = self.bm25.get_relevant_doc_bulk(self.datasets["question"], k=self.topk)
+            self.bm25_plus_scores, self.bm25_plus_indices = self.bm25_plus.get_relevant_doc_bulk(self.datasets["question"], k=self.topk)  
+        elif isinstance(self.datasets, str):
+            self.length_query_or_dataset = 1
+            self.tf_idf_scores, self.tf_idf_indices = self.tf_idf.get_relevant_doc(self.datasets, k=self.topk)
+            self.bm25_scores, self.bm25_indices = self.bm25.get_relevant_doc(self.datasets, k=self.topk)
+            self.bm25_plus_scores, self.bm25_plus_indices = self.bm25_plus.get_relevant_doc(self.datasets, k=self.topk)    
     
     def ensemble_and_rerank(self):
         '''추출된 TF-IDF, BM25, BM25+ 각각의 top-k passage들의 score를 Min-Max 정규화하여 모두 합친 뒤, 다시 top-k를 선정하여 retrieve된 passage들을 pd.DataFrame으로 반환합니다'''
         all_selected_scores, all_selected_indices = [], []
         
+        if isinstance(self.datasets, str):
+            self.tf_idf_scores = [self.tf_idf_scores]
+            self.bm25_scores = [self.bm25_scores]
+            self.bm25_plus_score = [self.bm25_plus_scores]
+            
+            self.tf_idf_indices = [self.tf_idf_indices]
+            self.bm25_indices = [self.bm25_indices]
+            self.bm25_plus_indices = [self.bm25_plus_indices]
         # 전체 test_data에 대한 각각의 top-k passage들의 score에 min max scaling를 적용시킵니다. 
-        for i in range(len(self.datasets)):
+        for i in range(self.length_query_or_dataset):
             tf_idf_scores = np.array(self.tf_idf_scores[i],float).reshape(-1, 1)
             bm25_scores = np.array(self.bm25_scores[i],float).reshape(-1, 1)
             bm25_plus_scores = np.array(self.bm25_plus_scores[i],float).reshape(-1, 1)
@@ -498,12 +539,10 @@ class Retriever_Ensemble(Retrieval):
  
         # ensemble을 통해 rerank된 top-k개의 passage들을 반환합니다.
         if isinstance(self.datasets, str):
-            doc_scores, doc_indices = all_selected_scores, all_selected_indices
             for i in range(self.topk):
-                print(f"Top-{i+1} passage with score {doc_scores[i]:4f}")
-                print(self.contexts[doc_indices[i]])
-
-            return (doc_scores, [self.contexts[doc_indices[i]] for i in range(self.topk)])
+                print(f"Top-{i+1} passage with score {all_selected_scores[0][i]:4f}")
+                print(self.contexts[all_selected_indices[0][i]])
+            return (all_selected_scores, all_selected_indices)
 
         elif isinstance(self.datasets, Dataset):
             # Retrieve한 Passage를 pd.DataFrame으로 반환합니다.
@@ -523,7 +562,128 @@ class Retriever_Ensemble(Retrieval):
                     # validation 데이터를 사용하면 ground_truth context와 answer도 반환합니다.
                     tmp["original_context"] = example["context"]
                     tmp["answers"] = example["answers"]
+                    tmp["scores"] = doc_scores[idx]
+                if __name__ == "__main__":
+                    tmp["scores"] = doc_scores[idx]
+                    if tmp["original_context"] in tmp["context"]:
+                        tmp["answer_index"] = [self.contexts[pid] for pid in doc_indices[idx]].index(tmp["original_context"])
+                    else:
+                        tmp["answer_index"] = -1
+                
                 total.append(tmp)
 
             cqas = pd.DataFrame(total)
             return cqas
+
+
+# Retriever Evaluation
+if __name__ == "__main__":
+
+    import argparse
+
+    parser = argparse.ArgumentParser(description="")
+    parser.add_argument("--dataset_name", default="../data/train_dataset", type=str, help="")
+    parser.add_argument(
+        "--model_name_or_path",
+        default="klue/roberta-large",#"bert-base-multilingual-cased",
+        type=str,
+        help="",
+    )
+    parser.add_argument("--data_path", default="../data", type=str, help="")
+    parser.add_argument(
+        "--context_path", default="wikipedia_documents.json", type=str, help=""
+    )
+    parser.add_argument("--use_faiss", default=False, type=bool, help="")
+    parser.add_argument("--retrieval_name", default="SparseRetrieval", type=str, help="")
+    parser.add_argument("--top_k_retrieval", default=40, type=int, help="")
+
+    args = parser.parse_args()
+
+    # Test sparse
+    org_dataset = load_from_disk(args.dataset_name)
+    full_ds = concatenate_datasets(
+        [
+            org_dataset["train"].flatten_indices(),
+            org_dataset["validation"].flatten_indices(),
+        ]
+    )  # train dev 를 합친 4192 개 질문에 대해 모두 테스트
+    print("*" * 40, "query dataset", "*" * 40)
+    print(full_ds)
+
+    from transformers import AutoTokenizer
+
+    tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path, use_fast=False,)
+    retriever = SparseRetrieval(
+        tokenize_fn=tokenizer.tokenize,
+        data_path=args.data_path,
+        context_path=args.context_path,
+    )
+    retriever.get_sparse_embedding()
+    if args.retrieval_name == "SparseRetrieval":
+        retriever = SparseRetrieval(tokenize_fn=tokenizer.tokenize, data_path=args.data_path, context_path=args.context_path)
+        retriever.get_sparse_embedding()
+    elif args.retrieval_name == "BM25":
+        retriever = BM25(tokenize_fn=tokenizer.tokenize, data_path=args.data_path, context_path=args.context_path)
+        retriever.get_sparse_embedding()
+    elif args.retrieval_name == "BM25_Plus":
+        retriever = BM25_Plus(tokenize_fn=tokenizer.tokenize, data_path=args.data_path, context_path=args.context_path)
+        retriever.get_sparse_embedding()
+    elif args.retrieval_name == "BM25_L":
+        retriever = BM25_L(tokenize_fn=tokenizer.tokenize, data_path=args.data_path, context_path=args.context_path)
+        retriever.get_sparse_embedding()
+    elif args.retrieval_name == "Ensemble":
+        print("Evaluate Retrieval Ensemble")
+    else:
+        raise ValueError("SparseRetrieval, BM25, BM25_Plus, BM25_L, Ensemble 중 하나를 정확히 입력해 주세요.")
+
+    query = "대통령을 포함한 미국의 행정부 견제권을 갖는 국가 기관은?"
+
+    if args.use_faiss:
+
+        # test single query
+        with timer("single query by faiss"):
+            scores, indices = retriever.retrieve_faiss(query)
+
+        # test bulk
+        with timer("bulk query by exhaustive search"):
+            df = retriever.retrieve_faiss(full_ds)
+            df["correct"] = df["original_context"] == df["context"]
+
+            print("correct retrieval result by faiss", df["correct"].sum() / len(df))
+
+    else:
+        with timer("bulk query by exhaustive search"):
+            if args.retrieval_name == "Ensemble":
+                retriever = Retriever_Ensemble(datasets=full_ds, tokenize_fn=tokenizer.tokenize, data_path=args.data_path, context_path=args.context_path, topk=args.top_k_retrieval)
+                df = retriever.ensemble_and_rerank()
+            else:
+                df = retriever.retrieve(full_ds, topk=args.top_k_retrieval)
+
+            df["correct"] = [original_context in context for original_context, context in zip(df["original_context"], df["context"])]
+            
+            answer_scores = [] 
+            scaler = MinMaxScaler()
+
+            for scores, answer_index in zip(df["scores"], df["answer_index"]):
+                if int(answer_index) >= 0:
+                    scores_array = np.array(scores).reshape(-1, 1)
+                    normalized_scores = scaler.fit_transform(scores_array).flatten()
+                    answer_scores.append(normalized_scores[int(answer_index)])
+            print(
+                "retrival evaluation\n",
+                f"retrieval({args.retrieval_name})가 retrive한 top-k({args.top_k_retrieval})개의 passage들 중에 정답이 포함되어 있는 경우 / 전체 query 수 : ",
+                df["correct"].sum() / len(df),
+            )
+            '''참고자료 : https://github.com/boostcampaitech3/level2-mrc-level2-nlp-09/issues/20'''
+            print(
+                " 정답 score들의 평균 : ",
+                sum(answer_scores) / len(answer_scores),
+                #answer_scores.sum() / len([score for score in answer_scores if score != 0]),
+            )
+
+        with timer("single query by exhaustive search"):
+            if args.retrieval_name == "Ensemble": 
+                retriever = Retriever_Ensemble(datasets=query, tokenize_fn=tokenizer.tokenize, data_path=args.data_path, context_path=args.context_path, topk=args.top_k_retrieval)
+                scores, indices = retriever.ensemble_and_rerank()
+            else:
+                scores, indices = retriever.retrieve(query)
