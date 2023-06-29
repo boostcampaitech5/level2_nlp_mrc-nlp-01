@@ -4,6 +4,7 @@ import sys
 import datetime
 from datetime import datetime
 from pytz import timezone
+from curriculum_learning import curri_extract
 
 from arguments import DataTrainingArguments, ModelArguments, ModelTrainingArguments
 from datasets import DatasetDict, load_from_disk
@@ -204,6 +205,7 @@ def run_mrc(data_args: DataTrainingArguments, training_args: TrainingArguments, 
         '''
         predictions = metric.compute(predictions=p.predictions, references=p.label_ids)
         wandb.log(predictions)
+        #curri_extract(p.predictions, p.label_ids) easy/hard data 추출시 활성화
         return {'eval_exact_match': predictions['exact_match'], 'eval_f1' : predictions['f1']}
 
 
